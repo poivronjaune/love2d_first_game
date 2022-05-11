@@ -12,6 +12,8 @@ BALL_SIZE     = 4
 LARGE_FONT = love.graphics.newFont(25)
 SMALL_FONT = love.graphics.newFont(10)
 
+WIN_SCORE = 3
+
 push = require 'push'
 
 gameState = 'title'
@@ -63,17 +65,26 @@ function love.update(dt)
             resetBall()
             gameState = 'serve'
             player2.score = player2.score + 1
+            if player2.score >= WIN_SCORE then gameState = 'win' end
         elseif ball.x >= VIRTUAL_WIDTH then
             resetBall()
             gameState = 'serve'
             player1.score = player1.score + 1
+            if player1.score >= WIN_SCORE then gameState = 'win' end
         end
 
         if ball.y <= 0 then
             ball.dy = -ball.dy
-        elseif ball.y >= VIRTUAL_HEIGHT then
+        elseif ball.y >= VIRTUAL_HEIGHT - BALL_SIZE then
             ball.dy = -ball.dy
-    
+        end
+
+        if collides(ball, player1) then
+            ball.x = player1.x + PADDLE_WIDTH
+            ball.dx = - ball.dx
+        elseif collides(ball, player2) then
+            ball.x = player2.x - BALL_SIZE
+            ball.dx = - ball.dx
         end
     end
 
@@ -86,9 +97,11 @@ function love.keypressed(key)
 
     if key == 'enter' or key == 'return' then
         if gameState == 'title' then
-            gameState = 'play'
+            gameState = 'serve'
         elseif gameState == 'serve' then
             gameState = 'play'
+        elseif gameState == 'win' then
+            gameState = 'serve'
         end
     end
 end
@@ -106,6 +119,14 @@ function love.draw()
     elseif gameState == 'serve' then
         love.graphics.setFont(SMALL_FONT)
         love.graphics.printf('Pres ENTER to serve', 0, VIRTUAL_HEIGHT - 32, VIRTUAL_WIDTH, 'center')
+    elseif gameState == 'win' then
+        love.graphics.setFont(LARGE_FONT)
+        local winner = player1.score >= 10 and '2' or '1'
+        love.graphics.printf('Player ' .. winner .. ' wins!', 0, 50, VIRTUAL_WIDTH, 'center')
+        love.graphics.setFont(SMALL_FONT)
+        love.graphics.printf('Pres ENTER to restart', 0, VIRTUAL_HEIGHT - 32, VIRTUAL_WIDTH, 'center')
+        player1.score = 0
+        player2.score = 0
     end
 
     love.graphics.setFont(LARGE_FONT)
@@ -115,7 +136,14 @@ function love.draw()
     love.graphics.rectangle('fill', player1.x, player1.y, PADDLE_WIDTH, PADDLE_HEIGHT)
     love.graphics.rectangle('fill', player2.x, player2.y, PADDLE_WIDTH, PADDLE_HEIGHT)
     love.graphics.rectangle('fill', ball.x, ball.y, BALL_SIZE, BALL_SIZE)
+    -- love.graphics.rectangle('fill', VIRTUAL_WIDTH / 2 - 1, 0, 2, VIRTUAL_HEIGHT)
     push:finish()
+end
+
+function collides(b, p)
+    -- Return true for a collision detected
+    no_collision_detected = b.y > p.y + PADDLE_HEIGHT or b.x > p.x + PADDLE_WIDTH or p.y > b.y + BALL_SIZE or p.x > b.x + BALL_SIZE
+    return not no_collision_detected
 end
 
 function resetBall()
