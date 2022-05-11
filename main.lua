@@ -18,11 +18,13 @@ gameState = 'title'
 
 player1 = {
     x = 10, 
-    y = 10
+    y = 10,
+    score = 0
 }
 player2 = {
     x = VIRTUAL_WIDTH - PADDLE_WIDTH - player1.x, 
-    y = VIRTUAL_HEIGHT - PADDLE_HEIGHT - player1.y
+    y = VIRTUAL_HEIGHT - PADDLE_HEIGHT - player1.y,
+    score = 0
 }
 ball = {
     x = VIRTUAL_WIDTH / 2 - BALL_SIZE / 2,
@@ -36,14 +38,7 @@ function love.load()
     love.graphics.setDefaultFilter('nearest', 'nearest')
     push:setupScreen(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT)
 
-    ball.dx = math.random(60)
-    if math.random(2) == 1 then
-        ball.dx = ball.dx * -1
-    end
-    ball.dy = math.random(60)
-    if math.random(2) == 1 then
-        ball.dy = ball.dy * -1
-    end
+    resetBall()
 
 end
 
@@ -62,8 +57,26 @@ function love.update(dt)
 
     if gameState == 'play' then
         ball.x = ball.x + ball.dx * dt
-        ball.y = ball.y + ball.dx * dt
+        ball.y = ball.y + ball.dy * dt
+
+        if ball.x <= 0 then
+            resetBall()
+            gameState = 'serve'
+            player2.score = player2.score + 1
+        elseif ball.x >= VIRTUAL_WIDTH then
+            resetBall()
+            gameState = 'serve'
+            player1.score = player1.score + 1
+        end
+
+        if ball.y <= 0 then
+            ball.dy = -ball.dy
+        elseif ball.y >= VIRTUAL_HEIGHT then
+            ball.dy = -ball.dy
+    
+        end
     end
+
 end
 
 function love.keypressed(key)
@@ -71,6 +84,13 @@ function love.keypressed(key)
         love.event.quit()
     end 
 
+    if key == 'enter' or key == 'return' then
+        if gameState == 'title' then
+            gameState = 'play'
+        elseif gameState == 'serve' then
+            gameState = 'play'
+        end
+    end
 end
 
 function love.draw()
@@ -80,13 +100,35 @@ function love.draw()
 
     if gameState == 'title' then
         love.graphics.setFont(LARGE_FONT)
-        love.graphics.printf('Love2D Pong', 0, 10, VIRTUAL_WIDTH, 'center')
+        love.graphics.printf('Love2D Pong', 0, 50, VIRTUAL_WIDTH, 'center')
         love.graphics.setFont(SMALL_FONT)
         love.graphics.printf('Press ENTER to start', 0, VIRTUAL_HEIGHT - 32, VIRTUAL_WIDTH, 'center')
+    elseif gameState == 'serve' then
+        love.graphics.setFont(SMALL_FONT)
+        love.graphics.printf('Pres ENTER to serve', 0, VIRTUAL_HEIGHT - 32, VIRTUAL_WIDTH, 'center')
     end
+
+    love.graphics.setFont(LARGE_FONT)
+    love.graphics.print(player1.score, VIRTUAL_WIDTH / 2 - 32, 5)   -- Move left a certain amount and move further for width of text
+    love.graphics.print(player2.score, VIRTUAL_WIDTH / 2 + 16, 5)
 
     love.graphics.rectangle('fill', player1.x, player1.y, PADDLE_WIDTH, PADDLE_HEIGHT)
     love.graphics.rectangle('fill', player2.x, player2.y, PADDLE_WIDTH, PADDLE_HEIGHT)
     love.graphics.rectangle('fill', ball.x, ball.y, BALL_SIZE, BALL_SIZE)
     push:finish()
 end
+
+function resetBall()
+    -- Place ball to center
+    ball.x = VIRTUAL_WIDTH / 2 - BALL_SIZE / 2
+    ball.y = VIRTUAL_HEIGHT / 2 - BALL_SIZE / 2
+    -- ball.dx = math.random(60)
+    ball.dx = 60 + math.random(60)
+    if math.random(2) == 1 then
+        ball.dx = -ball.dx
+    end
+    ball.dy = 30 + math.random(60)
+    if math.random(2) == 1 then
+        ball.dy = -ball.dy
+    end
+end        
