@@ -1,1 +1,1 @@
-# love2d_first_game
+# love2d pong game
