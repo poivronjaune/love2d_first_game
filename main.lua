@@ -101,6 +101,8 @@ function love.keypressed(key)
         elseif gameState == 'serve' then
             gameState = 'play'
         elseif gameState == 'win' then
+            player1.score = 0
+            player2.score = 0
             gameState = 'serve'
         end
     end
@@ -121,12 +123,10 @@ function love.draw()
         love.graphics.printf('Pres ENTER to serve', 0, VIRTUAL_HEIGHT - 32, VIRTUAL_WIDTH, 'center')
     elseif gameState == 'win' then
         love.graphics.setFont(LARGE_FONT)
-        local winner = player1.score >= 10 and '2' or '1'
+        local winner = player1.score >= WIN_SCORE and '2' or '1'
         love.graphics.printf('Player ' .. winner .. ' wins!', 0, 50, VIRTUAL_WIDTH, 'center')
         love.graphics.setFont(SMALL_FONT)
         love.graphics.printf('Pres ENTER to restart', 0, VIRTUAL_HEIGHT - 32, VIRTUAL_WIDTH, 'center')
-        player1.score = 0
-        player2.score = 0
     end
 
     love.graphics.setFont(LARGE_FONT)
