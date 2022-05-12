@@ -10,6 +10,7 @@ VIRTUAL_HEIGHT = VIRTUAL_WIDTH * 0.5625     -- VIRTUAL_HEIGHT = 216 (almost 2:1)
 
 
 function love.load()
+    love.graphics.setDefaultFilter('nearest', 'nearest')
     push:setupScreen(
         VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT,{
             fullscreen = false,
@@ -30,6 +31,8 @@ end
 
 function love.draw()
     push:apply('start')
+    love.graphics.clear(40/255, 45/255, 52/255, 255/255)
     love.graphics.printf('Hello pong!', 0, VIRTUAL_HEIGHT / 2 - 6, VIRTUAL_WIDTH, 'center')
+    love.graphics.rectangle('fill', VIRTUAL_WIDTH - 10, VIRTUAL_HEIGHT -50, 5, 20)
     push:apply('end')
 end
