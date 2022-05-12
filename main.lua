@@ -10,7 +10,14 @@ VIRTUAL_HEIGHT = VIRTUAL_WIDTH * 0.5625     -- VIRTUAL_HEIGHT = 216 (almost 2:1)
 
 
 function love.load()
+    -- Adjust resolution for anti aliasing
     love.graphics.setDefaultFilter('nearest', 'nearest')
+
+    -- Load and set default font
+    smallFont = love.graphics.newFont('font.ttf', 8)
+    love.graphics.setFont(smallFont)
+
+    -- Setup the retro view insde our physical window size
     push:setupScreen(
         VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT,{
             fullscreen = false,
